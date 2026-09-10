@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Extraction API</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📄 Invoice Extraction API</h1>
+      <p class="subtitle">Extract structured data from Indian GST invoices</p>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="upload">Upload Invoice</button>
+      <button class="tab-btn" data-tab="api-docs">API Documentation</button>
+      <button class="tab-btn" data-tab="history">Recent Extractions</button>
+    </nav>
+
+    <!-- Upload Section -->
+    <section id="upload" class="tab-content active">
+      <div class="upload-card">
+        <h2>Upload Invoice</h2>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="extractionType">Extraction Type</label>
+            <select id="extractionType" name="type" required>
+              <option value="text">Text Extraction (PDF with selectable text)</option>
+              <option value="ocr">OCR Extraction (Scanned images or PDFs)</option>
+            </select>
+            <small class="help-text">
+              Use <strong>Text Extraction</strong> for system-generated PDFs where you can select text.<br>
+              Use <strong>OCR Extraction</strong> for scanned documents, photos, or PDFs without selectable text.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="file">Select File</label>
+            <div class="file-drop-zone" id="dropZone">
+              <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp" required>
+              <div class="file-drop-content">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>Drag & drop your file here or click to browse</p>
+                <small>Supported: PDF, JPG, JPEG, PNG, WEBP (Max 10MB)</small>
+              </div>
+            </div>
+            <div id="fileInfo" class="file-info hidden"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            <span class="btn-text">Extract Invoice Data</span>
+            <span class="btn-loader hidden">Processing...</span>
+          </button>
+        </form>
+
+        <div id="uploadError" class="alert alert-error hidden"></div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsSection" class="results-card hidden">
+        <div class="results-header">
+          <h2>Extraction Results</h2>
+          <button class="btn btn-secondary" onclick="resetForm()">New Extraction</button>
+        </div>
+
+        <div class="confidence-bar">
+          <div class="confidence-label">Overall Confidence</div>
+          <div class="confidence-track">
+            <div id="confidenceFill" class="confidence-fill" style="width: 0%"></div>
+          </div>
+          <div id="confidenceValue" class="confidence-value">0%</div>
+        </div>
+
+        <div class="results-grid">
+          <!-- Document Info -->
+          <div class="result-section">
+            <h3>📋 Document Info</h3>
+            <div class="result-data" id="documentInfo"></div>
+          </div>
+
+          <!-- Invoice Details -->
+          <div class="result-section">
+            <h3>🧾 Invoice Details</h3>
+            <div class="result-data" id="invoiceDetails"></div>
+          </div>
+
+          <!-- Seller Info -->
+          <div class="result-section">
+            <h3>🏢 Seller</h3>
+            <div class="result-data" id="sellerInfo"></div>
+          </div>
+
+          <!-- Buyer Info -->
+          <div class="result-section">
+            <h3>👤 Buyer</h3>
+            <div class="result-data" id="buyerInfo"></div>
+          </div>
+
+          <!-- Totals -->
+          <div class="result-section">
+            <h3>💰 Totals</h3>
+            <div class="result-data" id="totalsInfo"></div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="result-section full-width">
+            <h3>📦 Line Items (<span id="itemCount">0</span>)</h3>
+            <div class="table-container">
+              <table id="itemsTable">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>HSN/SAC</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Taxable Value</th>
+                    <th>GST</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Warnings -->
+          <div id="warningsSection" class="result-section full-width hidden">
+            <h3>⚠️ Warnings</h3>
+            <ul id="warningsList"></ul>
+          </div>
+        </div>
+
+        <div class="raw-json-section">
+          <h3>📄 Raw JSON Response</h3>
+          <pre id="rawJson"></pre>
+          <button class="btn btn-secondary" onclick="copyJson()">Copy JSON</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Docs Section -->
+    <section id="api-docs" class="tab-content">
+      <div class="docs-card">
+        <h2>API Documentation</h2>
+        
+        <div class="endpoint">
+          <h3>POST /api/invoice/extract-text</h3>
+          <p>Extract text and structure from system-generated PDFs with selectable text.</p>
+          <div class="code-block">
+            <pre>curl -X POST http://localhost:3000/api/invoice/extract-text \
+  -F "file=@invoice.pdf"</pre>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h3>POST /api/invoice/extract-ocr</h3>
+          <p>Perform OCR on scanned images or PDFs, then extract structured data.</p>
+          <div class="code-block">
+            <pre>curl -X POST http://localhost:3000/api/invoice/extract-ocr \
+  -F "file=@scanned-invoice.jpg"</pre>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h3>Response Format</h3>
+          <div class="code-block">
+            <pre>{
+  "success": true,
+  "data": {
+    "document": { "type": "invoice", "source": "text|ocr", "page_count": 1 },
+    "seller": { "name": "...", "gstin": "...", ... },
+    "buyer": { "name": "...", "gstin": "...", ... },
+    "invoice": { "invoice_number": "...", "invoice_date": "...", ... },
+    "items": [ {...} ],
+    "totals": { "subtotal": ..., "grand_total": ..., ... },
+    "confidence": { "overall": 0.95, ... },
+    "warnings": []
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- History Section -->
+    <section id="history" class="tab-content">
+      <div class="history-card">
+        <h2>Recent Extractions</h2>
+        <div id="historyList">
+          <p class="empty-state">No recent extractions yet.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="clearHistory()">Clear History</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

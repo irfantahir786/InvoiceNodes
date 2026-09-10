@@ -1,12 +1,21 @@
 import express, { Application, Request, Response } from 'express';
+import path from 'path';
 import { invoiceRoutes } from './modules/invoice/invoice.routes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
+// Set EJS as view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from public directory
+app.use('/css', express.static(path.join(__dirname, '..', 'public', 'css')));
+app.use('/js', express.static(path.join(__dirname, '..', 'public', 'js')));
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -16,17 +25,9 @@ app.get('/health', (req: Request, res: Response) => {
 // API routes
 app.use('/api/invoice', invoiceRoutes);
 
-// Root endpoint with API info
+// Root route - serve the upload UI
 app.get('/', (req: Request, res: Response) => {
-  res.json({
-    name: 'Invoice Extraction API',
-    version: '1.0.0',
-    endpoints: {
-      'POST /api/invoice/extract-text': 'Extract text from system-generated PDFs',
-      'POST /api/invoice/extract-ocr': 'Extract text from scanned/image invoices using OCR',
-      'GET /health': 'Health check endpoint',
-    },
-  });
+  res.render('index');
 });
 
 // 404 handler
@@ -56,6 +57,7 @@ app.use((err: any, req: Request, res: Response, next: any) => {
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Invoice Extraction API server running on port ${PORT}`);
+    console.log(`Web UI: http://localhost:${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
     console.log(`API endpoints:`);
     console.log(`  POST /api/invoice/extract-text`);
