@@ -53,3 +53,4 @@ htmlcov/
 *.rar
 *.7z
 ```.next/
+.next/
