@@ -1,0 +1,67 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 500 >>
+stream
+BT
+/F1 16 Tf
+50 750 Td
+(TAX INVOICE) Tj
+/F1 12 Tf
+50 720 Td
+(ABC Electronics Pvt Ltd) Tj
+50 700 Td
+(GSTIN: 27AABCA1234B1Z5) Tj
+50 680 Td
+(Mumbai, Maharashtra - 400001) Tj
+50 640 Td
+(Bill To:) Tj
+50 620 Td
+(XYZ Traders) Tj
+50 600 Td
+(GSTIN: 24CDEFG5678H1Z9) Tj
+50 560 Td
+(Invoice No: INV-2024-001) Tj
+50 540 Td
+(Date: 15/01/2024) Tj
+50 500 Td
+(Item Description    HSN    Qty    Rate    Amount) Tj
+50 480 Td
+(Wireless Mouse      8471   10     500     5000) Tj
+50 460 Td
+(Keyboard            8471   5      800     4000) Tj
+50 420 Td
+(Taxable Value: 9000) Tj
+50 400 Td
+(CGST @ 9%: 810) Tj
+50 380 Td
+(SGST @ 9%: 810) Tj
+50 360 Td
+(Grand Total: 10620) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000266 00000 n 
+0000000818 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+895
+%%EOF
